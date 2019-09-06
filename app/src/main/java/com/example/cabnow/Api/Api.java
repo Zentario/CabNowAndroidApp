@@ -1,4 +1,4 @@
-package com.example.cabnow;
+package com.example.cabnow.Api;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -12,5 +12,7 @@ public interface Api {
     @POST("adduser")
     Call<ResponseBody> createUser(@Body String body);
 
-
+    @Headers("Content-Type: application/json")
+    @POST("login")
+    Call<ResponseBody> loginUser(@Body String body);
 }

@@ -1,4 +1,4 @@
-package com.example.cabnow;
+package com.example.cabnow.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.cabnow.Api.RetrofitClient;
+import com.example.cabnow.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private EditText edt_email, edt_name;
     private Button btn_signup;
     private EditText edt_phone, edt_password;
     private TextView tv_login;
@@ -43,8 +47,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String mPhone = edt_phone.getText().toString();
                 String mPassword = edt_password.getText().toString();
+                String mName = edt_name.getText().toString();
+                String mEmail = edt_email.getText().toString();
 
-                if(mPhone.equals("") || mPassword.equals(""))
+                if(mPhone.equals("") || mPassword.equals("") || mEmail.equals("") || mName.equals(""))
                 {
                     Toast.makeText(MainActivity.this, "Fill out the fields", Toast.LENGTH_SHORT).show();
                 }
@@ -54,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         paramObject.put("phone_no", mPhone);
                         paramObject.put("password", mPassword);
+                        paramObject.put("email", mEmail);
+                        paramObject.put("name", mName);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -94,9 +102,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     if(!error)
                                     {
-                                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
+                                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                                        finish();
                                     }
                                     else
                                     {
@@ -124,12 +133,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                finish();
             }
         });
 
     }
 
     private void setupUI() {
+        edt_name = findViewById(R.id.edt_name);
+        edt_email = findViewById(R.id.edt_email);
         btn_signup = findViewById(R.id.btn_signup);
         edt_phone = findViewById(R.id.edt_phone);
         edt_password = findViewById(R.id.edt_password);
