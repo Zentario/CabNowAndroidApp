@@ -2,6 +2,7 @@ package com.example.cabnow;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import dmax.dialog.SpotsDialog;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
+                    final AlertDialog dialog = new SpotsDialog.Builder()
+                            .setContext(MainActivity.this)
+                            .setMessage("Creating new user")
+                            .setCancelable(false)
+                            .build();
+
+                    dialog.show();
+
                     Call<ResponseBody> call = RetrofitClient
                             .getInstance()
                             .getApi()
@@ -84,21 +94,25 @@ public class MainActivity extends AppCompatActivity {
 
                                     if(!error)
                                     {
-                                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
                                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
                                     }
                                     else
                                     {
-                                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
+                                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
+
                         }
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            dialog.dismiss();
                             Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
