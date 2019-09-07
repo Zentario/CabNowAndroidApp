@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
         boolean available = isPlayServiceAvailable();
         if(!available)
         {
-            System.exit(0);
+            finishAffinity();
         }
 
         setupUI();
@@ -67,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: " + sharedPreferences.getString("phone_no", ""));
         edt_phone.setText(sharedPreferences.getString("phone_no", ""));
         edt_password.setText(sharedPreferences.getString("password", ""));
+
 
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,6 +153,11 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if(!edt_phone.getText().toString().equals("") && !edt_password.getText().toString().equals(""))
+        {
+            btn_login.callOnClick();
+        }
 
         tv_signup.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -2,6 +2,7 @@ package com.example.cabnow.Activity;
 
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -34,6 +35,8 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.List;
 
+import dmax.dialog.SpotsDialog;
+
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -51,8 +54,16 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Log.d(TAG, "onCreate: started map activity");
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        getLastLocation();
 
+        AlertDialog dialog = new SpotsDialog.Builder()
+                .setContext(HomeActivity.this)
+                .setMessage("Finding current location")
+                .setCancelable(false)
+                .build();
+
+        dialog.show();
+        getLastLocation();
+        dialog.dismiss();
     }
 
     private void getLastLocation() {
