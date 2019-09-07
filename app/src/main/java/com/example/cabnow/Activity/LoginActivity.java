@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -130,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                         // TODO Start map activity from here
                                         addToSharedPref(mPhone, mPassword);
-                                        //startActivity(LoginActivity.this, HomeActivity.class);
+                                        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                                         finish();
                                     }
                                     else
@@ -202,8 +201,6 @@ public class LoginActivity extends AppCompatActivity {
             if(locationPermissionGranted)
             {
                 Log.d(TAG, "onRequestPermissionsResult: GRANTED");
-                // Can initialize map here ...
-
             }
             else
             {
