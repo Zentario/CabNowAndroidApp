@@ -1,9 +1,13 @@
 package com.example.cabnow.Activity;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,10 +16,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.cabnow.Api.RetrofitClient;
 import com.example.cabnow.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +40,10 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+    private static final int LOCATION_PERMISSION_REQUEST = 1234;
+    private boolean locationPermissionGranted = false;
+
     private Button btn_login;
     private EditText edt_phone, edt_password;
     private TextView tv_signup;
@@ -40,7 +53,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        boolean available = isPlayServiceAvailable();
+        if(!available)
+        {
+            System.exit(0);
+        }
+
         setupUI();
+
+        getLocationPermission();
+
 
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         Log.d(TAG, "onCreate: " + sharedPreferences.getString("phone_no", ""));
@@ -108,8 +130,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                         // TODO Start map activity from here
                                         addToSharedPref(mPhone, mPassword);
-                                        //startActivity(LoginActivity.this, Home.class);
-                                        //finish();
+                                        //startActivity(LoginActivity.this, HomeActivity.class);
+                                        finish();
                                     }
                                     else
                                     {
@@ -139,6 +161,83 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void getLocationPermission() {
+        Log.d(TAG, "getLocationPermission: checking permissions first");
+
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if(ContextCompat.checkSelfPermission(LoginActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(LoginActivity.this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        {
+            Log.d(TAG, "getLocationPermission: all permissions granted");
+            locationPermissionGranted = true;
+        }
+        else
+        {
+            Log.d(TAG, "getLocationPermission: Requesting for permissions list");
+            ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: Looping through grantedResults");
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+
+            locationPermissionGranted = true;
+
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "onRequestPermissionsResult: Not granted");
+                    locationPermissionGranted = false;
+                }
+            }
+
+            if(locationPermissionGranted)
+            {
+                Log.d(TAG, "onRequestPermissionsResult: GRANTED");
+                // Can initialize map here ...
+
+            }
+            else
+            {
+                Log.d(TAG, "onRequestPermissionsResult: Did not Grant");
+                Toast.makeText(this, "This app needs location to function", Toast.LENGTH_SHORT).show();
+                finishAffinity();
+            }
+        }
+    }
+
+
+    private boolean isPlayServiceAvailable() {
+        Log.d(TAG, "isPlayServiceAvailable: checking play services availability");
+
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LoginActivity.this);
+
+        if(available == ConnectionResult.SUCCESS)
+        {
+            // maps can be used
+            Log.d(TAG, "isPlayServiceAvailable: maps can be used");
+            return true;
+        }
+        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available))
+        {
+            // user resolvable error
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(LoginActivity.this, available, ERROR_DIALOG_REQUEST);
+            dialog.show();
+        }
+        else
+        {
+            // cant use maps
+            Toast.makeText(this, "You cannot make map requests", Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 
     private void addToSharedPref(String phone, String pwd) {
